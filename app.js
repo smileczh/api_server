@@ -4,6 +4,7 @@ const express = require('express')
 
 // 创建服务器实例
 const app = express()
+const joi = require('joi')
 
 // 导入并配置cors中间件
 const cors = require('cors')
@@ -19,7 +20,7 @@ app.use((req, res, next) => {
   res.cc = function (err, status = 1) {
     res.send({
       status,
-      message: err instanceof Error ? error.message : err
+      message: err instanceof Error ? err.message : err
     })
   }
   next()
@@ -28,9 +29,18 @@ app.use((req, res, next) => {
 // 导入并使用用户路由模块
 const userRouter = require('./router/user')
 app.use('/api', userRouter)
-app.get('/', (req, res) => {
-  res.send('123')
+
+
+// 定义错误级别的中间件
+app.use((err, req, res, next) => {
+  // 验证失败导致的错误
+  if (err instanceof joi.ValidationError) return res.cc(err)
+  console.log(err, 888);
+  // 未知的错误
+  res.cc(err)
 })
+
+
 // 启动服务器
 app.listen(3007, () => {
   console.log('api server running at http://127.0.0.1:3007');
