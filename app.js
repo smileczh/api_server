@@ -11,6 +11,9 @@ const joi = require('joi')
 const cors = require('cors')
 app.use(cors())
 
+// 托管静态资源文件
+app.use('/uploads', express.static('./uploads'))
+
 // 在路由之前配置解析token的中间件
 const config = require('./config')
 // 解析token的中间件
@@ -18,7 +21,7 @@ const expressJWT = require('express-jwt')
 //配置解析表单数据的中间件，注意： 这个中间件，只能解析application/x-www-form-urlencoded 格式的表单数据
 app.use(express.urlencoded({ extended: false }))
 
-// 一定要在路由之前，风脏res.cc函数
+// 一定要在路由之前，封装res.cc函数
 app.use((req, res, next) => {
   // status 默认值为1，表示失败的情况
   // err的值，可能是一个错误对象，也可能是一个错误的描述字符串
@@ -50,6 +53,13 @@ app.use('/my', userinfoRouter)
 const artCateRouter = require('./router/artcate')
 // 为文章分类的路由挂载统一的访问前缀 /my/article
 app.use('/my/article', artCateRouter)
+
+// 导入并使用文章路由模块
+const articleRouter = require('./router/article')
+// 为文章的路由挂载统一的访问前缀 /my/article
+app.use('/my/article', articleRouter)
+
+
 
 // 定义错误级别的中间件
 app.use((err, req, res, next) => {
